@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memory Circuits</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+        }
+
+        header {
+            background-color: #4CAF50;
+            text-align: center;
+            padding: 1em;
+        }
+
+        section {
+            padding: 20px;
+            background-color: white;
+            margin: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            color: #333;
+        }
+
+        .circuit-container {
+            margin-bottom: 40px;
+            display: flex;
+            align-items: center;
+            gap: 40px;
+        }
+
+        .input-group,
+        .output {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .circle {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background-color: gray;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            color: white;
+        }
+
+        .active {
+            background-color: limegreen;
+        }
+
+        .invalid {
+            background-color: black;
+        }
+
+        img.circuit {
+            max-width: 400px;
+            border-radius: 8px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+        }
+
+        img.circuit-small {
+            max-width: 150px;
+            border-radius: 8px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+        }
+    </style>
+</head>
+
+<body onload="initializeOutputs()">
+
+    <header>
+        <h1>Memory Circuits</h1>
+        <h2>Mạch Nhớ</h2>
+    </header>
+
+    <section id="intro">
+        <h2>Mạch Nhớ - <i>Memory Circuits</i></h2>
+        <p>
+            Trong các chương trước, mạch tổ hợp là loại mạch trong đó đầu ra chỉ phụ thuộc vào trạng thái hiện tại của các đầu vào.
+            Điều này có nghĩa là không có khái niệm "trí nhớ" trong mạch. Mỗi khi đầu vào thay đổi, đầu ra sẽ thay đổi
+            ngay lập tức theo hàm tư duy nhị phân được xác định từ đầu.
+        </p>
+        <p>
+            Ngược lại, mạch nhớ, hay còn gọi là mạch tuần tự, có khả năng lưu trữ trạng thái nhờ vào việc phản hồi đầu
+            ra trở lại đầu vào của hệ thống, còn được gọi là gọi là <strong>đệ quy
+                (recursion)</strong>.
+            Nhờ đó, mạch có thể "ghi nhớ" thông tin từ quá khứ, và đầu ra không chỉ phụ thuộc vào đầu vào hiện tại mà
+            còn vào trạng thái trước đó.
+        </p>
+    </section>
+
+    <section id="sr-latch">
+        <h1>Mạch Giữ Bit - <i>Latch</i></h1>
+        <p>
+            Từ "latch" trong tiếng Anh có nghĩa là cái chốt, một cơ cấu cơ khí dùng để đóng hoặc mở. Bạn có thể tưởng
+            mạch giữ bit như một cái chốt cửa: khi bạn đẩy chốt sang một bên, nó sẽ giữ cửa ở trạng thái mở; nếu bạn đẩy
+            sang bên còn lại, cửa sẽ được chốt lại. Nếu bạn không làm gì, chốt sẽ giữ nguyên trạng thái hiện tại. Mạch
+            giữ bit hay latch trong máy tính cũng hoạt động tương tự với khả năng lưu trữ một trạng thái.
+        </p>
+        <h2>Set-Reset Latch (NOR-based)</h2>
+        <ul>
+            <li>S = 1, R = 0 → Q = 1, Q' = 0 <span style="color: blue;">[BẬT - <i>SET</i>]</span></li>
+            <li>S = 0, R = 1 → Q = 0, Q' = 1 <span style="color: red;">[TẮT - <i>RESET</i>]</span></li>
+            <li>S = 0, R = 0 → giữ trạng thái <b>[NHỚ - MEMORY]</b></li>
+            <li>S = 1, R = 1 → Q = 0, Q' = 0 Trạng thái không xác định (Invalid)</li>
+        </ul>
+        <div class="circuit-container">
+            <div class="input-group">
+                <label>R <input type="checkbox" id="input_r" onchange="srLatch()"></label>
+                <label>S <input type="checkbox" id="input_s" onchange="srLatch()"></label>
+            </div>
+            <img class="circuit" src="latch-00.png" alt="SR Latch Circuit" id="srlatch-circuit">
+            <div class="output">
+                <div id="output_q" class="circle"></div>
+                <div id="output_qn" class="circle"></div>
+            </div>
+        </div>
+        <h2>S̅-R̅ Latch (NAND-based)</h2>
+        <ul>
+            <li>S̅ = 0, R̅ = 1 → Q = 1, Q' = 0 <span style="color: blue;">[BẬT - <i>SET</i>]</span></li>
+            <li>S̅ = 1, R̅ = 0 → Q = 0, Q' = 1 <span style="color: red;">[TẮT - <i>RESET</i>]</span></li>
+            <li>S̅ = 1, R̅ = 1 → Giữ nguyên trạng thái <b>[NHỚ - MEMORY]</b></li>
+            <li>S̅ = 0, R̅ = 0 → Q = 1, Q' = 1 Trạng thái không xác định (Invalid)</li>
+        </ul>
+        <div class="circuit-container">
+            <div class="input-group">
+                <label>S̅ <input type="checkbox" id="input_sn" onchange="srNandLatch()" checked></label>
+                <label>R̅ <input type="checkbox" id="input_rn" onchange="srNandLatch()" checked></label>
+            </div>
+            <img class="circuit" src="blatch-11-01.png" alt="S̅-R̅ Latch Circuit" id="srnandlatch-circuit">
+            <div class="output">
+                <div id="output_qn_sr" class="circle">Q</div>
+                <div id="output_qnb_sr" class="circle">Q'</div>
+            </div>
+        </div>
+        <h2>SR Latch with Control Input (Gated SR Latch)</h2>
+        <ul>
+            <li>Control = 0 → Giữ nguyên trạng thái</li>
+            <li>Control = 1, S = 1, R = 0 → Q = 1, Q' = 0 <span style="color: blue;">[BẬT - <i>SET</i>]</span></li>
+            <li>Control = 1, S = 0, R = 1 → Q = 0, Q' = 1 <span style="color: red;">[TẮT - <i>RESET</i>]</span></li>
+            <li>Control = 1, S = 0, R = 0 → Giữ trạng thái <b>[NHỚ - MEMORY]</b></li>
+            <li>Control = 1, S = 1, R = 1 → Q = 0, Q' = 0 Trạng thái không xác định (Invalid)</li>
+        </ul>
+        <div class="circuit-container">
+            <div class="input-group">
+                <label>S <input type="checkbox" id="input_sg" onchange="gatedSrLatch()"></label>
+                <label>C <input type="checkbox" id="input_ctrl" onchange="gatedSrLatch()"></label>
+                <label>R <input type="checkbox" id="input_rg" onchange="gatedSrLatch()"></label>
+            </div>
+            <img class="circuit" src="csrlatch.png" alt="Gated SR Latch Circuit" id="gated-srlatch-circuit">
+            <div class="output">
+                <div id="output_q_g" class="circle">Q</div>
+                <div id="output_qb_g" class="circle">Q'</div>
+            </div>
+            <i>Xin lỗi, mạch này không có mô phỏng do quá phức tạp.</i>
+        </div>
+        <h2>D Latch (Data Latch with Control)</h2>
+        <ul>
+            <li>Control = 1 → Q = D, Q′ = D′</li>
+            <li>Control = 0 → Giữ nguyên trạng thái <b>[NHỚ - MEMORY]</b></li>
+        </ul>
+        <div class="circuit-container">
+            <div class="input-group">
+                <label>D <input type="checkbox" id="input_d" onchange="dLatch()"></label>
+                <label>C <input type="checkbox" id="input_ctrl_d" onchange="dLatch()"></label>
+            </div>
+            <img class="circuit" src="dlatch.png" alt="D Latch Circuit" id="d-latch-circuit">
+            <div class="output">
+                <div id="output_q_d" class="circle">Q</div>
+                <div id="output_qb_d" class="circle">Q'</div>
+            </div>
+            <i>Xin lỗi, mạch này không có mô phỏng do quá phức tạp.</i>
+        </div>
+        <p>Mạch D Latch nhận một tín hiệu dữ liệu D và một tín hiệu điều khiển (Control). Khi Control = 1, đầu ra Q sẽ
+            sao chép giá trị của D. Khi Control = 0, Q giữ nguyên giá trị trước đó.</p>
+    </section>
+
+    <section id="d-flipflop">
+        <h1>Mạch Bật Bit / Mạch Chốt Xung - <i>Flip-flops</i></h1>
+        </ul>
+        <p>
+            Trong khi mạch giữ bit phản hồi ngay lập tức với các thay đổi của tín hiệu điều khiển, thì <strong>mạch chốt
+                xung (flip-flop)</strong> là cải tiến có khả năng kiểm soát thời điểm thay đổi trạng thái, hay thời điểm
+            bám bit, theo <strong>xung nhịp (clock signal)</strong>.
+        </p>
+
+        <h2>Positive Edge Triggered D Flip-Flop</h2>
+        <div class="circuit-container">
+            <div class="input-group">
+                <label>D <input type="checkbox" id="input_d_ff_pos" onchange="dFlipFlopPosSim()"></label>
+                <label>Clock <input type="checkbox" id="input_clk_pos" onchange="clockEdgeDetectPos()"></label>
+            </div>
+            <img class="circuit-small" src="pos-d-ff-symbol.png" alt="D Flip-Flop Circuit" id="d-flipflop-circuit-pos">
+            <div class="output">
+                <div id="output_q_ff_pos" class="circle">Q</div>
+                <div id="output_qb_ff_pos" class="circle">Q'</div>
+            </div>
+        </div>
+        <h2>Negative Edge Triggered D Flip-Flop</h2>
+        <div class="circuit-container">
+            <div class="input-group">
+                <label>D <input type="checkbox" id="input_d_ff" onchange="dFlipFlopSim()"></label>
+                <label>Clock <input type="checkbox" id="input_clk" onchange="clockEdgeDetect()"></label>
+            </div>
+            <img class="circuit-small" src="neg-d-ff-symbol.png" alt="D Flip-Flop Circuit" id="d-flipflop-circuit">
+            <div class="output">
+                <div id="output_q_ff" class="circle">Q</div>
+                <div id="output_qb_ff" class="circle">Q'</div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        let qState = 0; // 0 = Reset, 1 = Set
+        let invalid = false;
+
+        function srLatch() {
+            const s = document.getElementById('input_s').checked ? 1 : 0;
+            const r = document.getElementById('input_r').checked ? 1 : 0;
+            const q = document.getElementById('output_q');
+            const qn = document.getElementById('output_qn');
+
+            q.classList.remove("active", "invalid");
+            qn.classList.remove("active", "invalid");
+
+            if (s === 1 && r === 0) {
+                qState = 1;
+                invalid = false;
+                document.querySelector('#srlatch-circuit').src = 'latch-01.png';
+            } else if (s === 0 && r === 1) {
+                qState = 0;
+                invalid = false;
+                document.querySelector('#srlatch-circuit').src = 'latch-10.png';
+            } else if (s === 1 && r === 1) {
+                invalid = true;
+                document.querySelector('#srlatch-circuit').src = 'latch-11.png';
+            }
+
+            if (invalid) {
+                q.innerText = 0;
+                qn.innerText = 0;
+                q.classList.add("invalid");
+                qn.classList.add("invalid");
+            } else {
+                q.innerText = qState;
+                qn.innerText = 1 - qState;
+                if (qState === 1) {
+                    q.classList.add("active");
+                } else {
+                    qn.classList.add("active");
+                }
+            }
+
+            if (s === 0 && r === 0) {
+                if (qState === 1) {
+                    document.querySelector('#srlatch-circuit').src = 'latch-00-10.png';
+                } else {
+                    if (invalid) {
+                        document.querySelector('#srlatch-circuit').src = 'latch-00.png';
+                    } else {
+                        document.querySelector('#srlatch-circuit').src = 'latch-00-01.png';
+                    }
+                }
+            }
+        }
+
+        let qNandState = 0;
+        let invalidNand = false;
+
+        function srNandLatch() {
+            const sn = document.getElementById('input_sn').checked ? 1 : 0;
+            const rn = document.getElementById('input_rn').checked ? 1 : 0;
+            const q = document.getElementById('output_qn_sr');
+            const qn = document.getElementById('output_qnb_sr');
+
+            q.classList.remove("active", "invalid");
+            qn.classList.remove("active", "invalid");
+
+            if (sn === 0 && rn === 1) {
+                qNandState = 1;
+                invalidNand = false;
+                document.querySelector('#srnandlatch-circuit').src = 'blatch-01.png';
+            } else if (sn === 1 && rn === 0) {
+                qNandState = 0;
+                invalidNand = false;
+                document.querySelector('#srnandlatch-circuit').src = 'blatch-10.png';
+            } else if (sn === 0 && rn === 0) {
+                invalidNand = true;
+                document.querySelector('#srnandlatch-circuit').src = 'blatch-00.png';
+            }
+
+            if (invalidNand) {
+                q.innerText = 1;
+                qn.innerText = 1;
+                q.classList.add("invalid");
+                qn.classList.add("invalid");
+            } else {
+                q.innerText = qNandState;
+                qn.innerText = 1 - qNandState;
+                if (qNandState === 1) {
+                    q.classList.add("active");
+                } else {
+                    qn.classList.add("active");
+                }
+            }
+
+            if (sn === 1 && rn === 1) {
+                if (qNandState === 1) {
+                    document.querySelector('#srnandlatch-circuit').src = 'blatch-11-10.png';
+                } else {
+                    if (invalidNand) {
+                        document.querySelector('#srnandlatch-circuit').src = 'blatch-00.png';
+                    } else {
+                        document.querySelector('#srnandlatch-circuit').src = 'blatch-11-01.png';
+                    }
+                }
+            }
+        }
+
+        let qGatedState = 0;
+        let invalidGated = false;
+
+        function gatedSrLatch() {
+            const c = document.getElementById('input_ctrl').checked ? 1 : 0;
+            const s = document.getElementById('input_sg').checked ? 1 : 0;
+            const r = document.getElementById('input_rg').checked ? 1 : 0;
+
+            const q = document.getElementById('output_q_g');
+            const qn = document.getElementById('output_qb_g');
+
+            q.classList.remove("active", "invalid");
+            qn.classList.remove("active", "invalid");
+
+            if (c === 1) {
+                if (s === 1 && r === 0) {
+                    qGatedState = 1;
+                    invalidGated = false;
+                } else if (s === 0 && r === 1) {
+                    qGatedState = 0;
+                    invalidGated = false;
+                } else if (s === 1 && r === 1) {
+                    invalidGated = true;
+                }
+                // s=0 and r=0 => hold state
+            }
+            // c === 0 => hold state (do nothing)
+
+            if (invalidGated) {
+                q.innerText = 0;
+                qn.innerText = 0;
+                q.classList.add("invalid");
+                qn.classList.add("invalid");
+            } else {
+                q.innerText = qGatedState;
+                qn.innerText = 1 - qGatedState;
+                if (qGatedState === 1) {
+                    q.classList.add("active");
+                } else {
+                    qn.classList.add("active");
+                }
+            }
+        }
+
+        let qDState = 0;
+
+        function dLatch() {
+            const c = document.getElementById('input_ctrl_d').checked ? 1 : 0;
+            const d = document.getElementById('input_d').checked ? 1 : 0;
+
+            const q = document.getElementById('output_q_d');
+            const qn = document.getElementById('output_qb_d');
+
+            q.classList.remove("active");
+            qn.classList.remove("active");
+
+            if (c === 1) {
+                qDState = d;
+            }
+
+            q.innerText = qDState;
+            qn.innerText = 1 - qDState;
+
+            if (qDState === 1) {
+                q.classList.add("active");
+            } else {
+                qn.classList.add("active");
+            }
+        }
+
+        let lastClock = 0;
+        let qFlipFlop = 0;
+
+        function clockEdgeDetect() {
+            const clk = document.getElementById('input_clk').checked ? 1 : 0;
+
+            // Detect falling edge: lastClock = 1, current clk = 0
+            if (lastClock === 1 && clk === 0) {
+                dFlipFlopSim(true); // true means it's falling edge
+            }
+
+            lastClock = clk;
+        }
+
+        function dFlipFlopSim(onFallingEdge = false) {
+            const d = document.getElementById('input_d_ff').checked ? 1 : 0;
+            const q = document.getElementById('output_q_ff');
+            const qn = document.getElementById('output_qb_ff');
+
+            q.classList.remove("active");
+            qn.classList.remove("active");
+
+            if (onFallingEdge) {
+                qFlipFlop = d;
+            }
+
+            q.innerText = qFlipFlop;
+            qn.innerText = 1 - qFlipFlop;
+
+            if (qFlipFlop === 1) {
+                q.classList.add("active");
+            } else {
+                qn.classList.add("active");
+            }
+        }
+
+        let lastClockPos = 0;
+        let qFlipFlopPos = 0;
+
+        function clockEdgeDetectPos() {
+            const clk = document.getElementById('input_clk_pos').checked ? 1 : 0;
+
+            // Detect rising edge: lastClock = 0, current clk = 1
+            if (lastClockPos === 0 && clk === 1) {
+                dFlipFlopPosSim(true); // rising edge detected
+            }
+
+            lastClockPos = clk;
+        }
+
+        function dFlipFlopPosSim(onRisingEdge = false) {
+            const d = document.getElementById('input_d_ff_pos').checked ? 1 : 0;
+            const q = document.getElementById('output_q_ff_pos');
+            const qn = document.getElementById('output_qb_ff_pos');
+
+            q.classList.remove("active");
+            qn.classList.remove("active");
+
+            if (onRisingEdge) {
+                qFlipFlopPos = d;
+            }
+
+            q.innerText = qFlipFlopPos;
+            qn.innerText = 1 - qFlipFlopPos;
+
+            if (qFlipFlopPos === 1) {
+                q.classList.add("active");
+            } else {
+                qn.classList.add("active");
+            }
+        }
+
+        function initializeOutputs() {
+            srLatch();
+            srNandLatch();
+            gatedSrLatch();
+            dLatch();
+            dFlipFlopSim();
+            dFlipFlopPosSim();
+        }
+    </script>
+
+</body>
+
+</html>
