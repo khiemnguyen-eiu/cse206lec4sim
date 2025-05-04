@@ -56,6 +56,7 @@
             align-items: center;
             font-weight: bold;
             color: white;
+            cursor: pointer;
         }
 
         .active {
@@ -77,6 +78,16 @@
             border-radius: 8px;
             box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
         }
+
+        button#enable_write_btn {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            background-color: gray;
+        }
     </style>
 </head>
 
@@ -90,7 +101,8 @@
     <section id="intro">
         <h2>Mạch Nhớ - <i>Memory Circuits</i></h2>
         <p>
-            Trong các chương trước, mạch tổ hợp là loại mạch trong đó đầu ra chỉ phụ thuộc vào trạng thái hiện tại của các đầu vào.
+            Trong các chương trước, mạch tổ hợp là loại mạch trong đó đầu ra chỉ phụ thuộc vào trạng thái hiện tại của
+            các đầu vào.
             Điều này có nghĩa là không có khái niệm "trí nhớ" trong mạch. Mỗi khi đầu vào thay đổi, đầu ra sẽ thay đổi
             ngay lập tức theo hàm tư duy nhị phân được xác định từ đầu.
         </p>
@@ -220,6 +232,111 @@
             <div class="output">
                 <div id="output_q_ff" class="circle">Q</div>
                 <div id="output_qb_ff" class="circle">Q'</div>
+            </div>
+        </div>
+    </section>
+
+    <section id="moore-sequential">
+        <h1>Mạch Đa Hình Tuần Tự - <i>Sequential Circuits</i></h1>
+        <p>Khi kết hợp các mạch bật bit (flip-flop) với nhau, chúng ta có thể tạo ra các mạch có nhiều trạng thái khác
+            nhau (đa hình).
+            Mạch này có nhiều trạng thái là nhờ tính chất nhớ của các mạch bật bit, cho phép chúng ta lưu trữ trạng thái
+            hiện tại và chuyển đổi giữa các trạng thái khác nhau dựa trên đầu vào.
+            Các mạch này được gọi là <strong>mạch đa hình tuần tự (sequential circuits)</strong>.</p>
+        <p>Mô phỏng mạch tuần tự với trạng thái nội bộ (2 bit: A, B), 1 đầu vào X và 1 đầu ra Y.</p>
+        <div class="circuit-container">
+            <div class="input-group">
+                <div id="state_display_text">
+                    Mã trạng thái: <span id="state_bin">00</span> (decimal <span id="state_dec">0</span>)
+                </div>
+                <label>X <input type="checkbox" id="input_x_moore"></label>
+                <button onclick="stepMooreCircuit()">Clock</button>
+            </div>
+            <img class="circuit" src="seq-circuit-0.png" alt="Moore Circuit" id="moore-circuit" width="400px">
+            <div class="output">
+                <div id="output_y_moore" class="circle">Y</div>
+            </div>
+        </div>
+    </section>
+
+    <section id="eight-bit-register">
+        <h1>Mạch Thanh Ghi - <i>Register</i></h1>
+
+        <p>Khi phối hợp nhiều mạch bật bit (flip-flop) với nhau, chúng ta có thể tạo ra các mạch có khả năng lưu trữ
+            nhiều bit dữ liệu.
+            Mạch này được gọi là <strong>mạch thanh ghi (register)</strong>. Mạch thanh ghi có thể được sử dụng để lưu
+            trữ dữ liệu tạm thời trong quá trình xử lý của máy tính.</p>
+
+        <!-- Enable and Clock Row -->
+        <div class="circuit-container" style="display: inline-block;">
+            <div class="input-group">
+                <button id="enable_write_btn" onclick="toggleEnable()">Enable Write: OFF</button>
+                <label>Clock <input type="checkbox" id="clock_signal" onchange="triggerClock()"></label>
+                <button onclick="clearRegister()">Reset</button>
+            </div>
+
+            <br>
+
+            <!-- Bit Selection Row -->
+            <div class="input-group">
+                <label>Click a bit to set it:</label>
+                <div id="bit_selectors" style="display: flex; gap: 10px;"></div>
+            </div>
+
+            <!-- Circuit Image Row -->
+            <div style="margin: 20px 0; text-align: center;">
+                <img src="4bitregister.png" alt="8-bit Register Circuit" class="circuit">
+            </div>
+
+            <!-- Output Row -->
+            <div class="output">
+                <label>Register Output:</label>
+                <div id="register_output" style="display: flex; gap: 10px;"></div>
+            </div>
+        </div>
+    </section>
+
+    <section id="counter">
+        <h1>Mạch Đếm - <i>Counter</i></h1>
+        <p>Phối hợp nhiều mạch bật bit (flip-flop) với nhau, chúng ta có thể tạo ra các mạch đếm (counter).
+            Mạch đếm có khả năng đếm số và lưu trữ giá trị đếm hiện tại.</p>
+        <div class="circuit-container">
+            <div class="input-group">
+                <button onclick="resetCounter()">Reset</button>
+            </div>
+            <div class="output" style="display: flex; gap: 10px; margin-top: 10px;">
+                <div id="counter_output" style="display: flex; gap: 10px;"></div>
+                <span id="counter_decimal" style="font-weight: bold; margin-left: 10px;"></span>
+            </div>
+        </div>
+        <img src="counter4bit.png" alt="Counter Circuit" class="circuit" style="margin-bottom: 20px;">
+    </section>
+
+    <section id="bit-shifter">
+        <h1>Mạch Dịch Bit - <i>Shifter</i></h1>
+        <p>Mạch dịch bit (bit shifter) là một loại mạch có khả năng dịch chuyển các bit trong một số nhị phân sang trái
+            hoặc phải.
+            Mạch này thường được sử dụng trong các phép toán số học và logic.</p>
+
+        <div class="circuit-container">
+            <div class="input-group">
+                <label>Binary Input (8 bits):
+                    <input type="text" id="shift_input" placeholder="e.g. 10100101" maxlength="8">
+                </label>
+                <button onclick="loadShiftData()">Load</button>
+            </div>
+
+            <div class="input-group" style="margin-top: 10px;">
+                <button onclick="shiftLeft()">Shift Left</button>
+            </div>
+
+            <div class="output" style="margin-top: 20px; display: flex; align-items: center; gap: 10px;">
+                <div id="shifter_output" style="display: flex; gap: 10px;"></div>
+                <span id="shifter_decimal" style="font-weight: bold;"></span>
+            </div>
+
+            <div class="input-group" style="margin-top: 10px;">
+                <button onclick="shiftRight()">Shift Right</button>
             </div>
         </div>
     </section>
@@ -473,6 +590,191 @@
             }
         }
 
+        let stateA = 0;
+        let stateB = 0;
+
+        const mooreTransitions = {
+            "000": { next_a: 0, next_b: 0, y: 0, img: "seq-circuit-1.png" },
+            "001": { next_a: 0, next_b: 1, y: 0, img: "seq-circuit-2.png" },
+            "010": { next_a: 0, next_b: 0, y: 1, img: "seq-circuit-3.png" },
+            "011": { next_a: 1, next_b: 1, y: 0, img: "seq-circuit-4.png" },
+            "100": { next_a: 0, next_b: 0, y: 1, img: "seq-circuit-8.png" },
+            "101": { next_a: 1, next_b: 0, y: 0, img: "seq-circuit-7.png" },
+            "110": { next_a: 0, next_b: 0, y: 1, img: "seq-circuit-5.png" },
+            "111": { next_a: 1, next_b: 0, y: 0, img: "seq-circuit-6.png" }
+        };
+
+        function stepMooreCircuit() {
+            const x = document.getElementById('input_x_moore').checked ? 1 : 0;
+            const key = `${stateA}${stateB}${x}`;
+            const transition = mooreTransitions[key];
+
+            if (transition) {
+                // Update state
+                stateA = transition.next_a;
+                stateB = transition.next_b;
+
+                // Update text display
+                const binState = `${stateA}${stateB}`;
+                const decState = (stateA << 1) | stateB;
+
+                document.getElementById('state_bin').innerText = binState;
+                document.getElementById('state_dec').innerText = decState;
+
+                // Output
+                const yCircle = document.getElementById('output_y_moore');
+                yCircle.innerText = transition.y;
+                yCircle.classList.remove("active");
+                if (transition.y === 1) yCircle.classList.add("active");
+
+                // Update circuit image
+                const circuitImg = document.getElementById('moore-circuit');
+                circuitImg.src = transition.img;
+            }
+        }
+
+        let register = Array(4).fill(0);
+        let enableWrite = false;
+
+        function renderBits() {
+            const container = document.getElementById("bit_selectors");
+            container.innerHTML = "";
+            for (let i = 0; i < 4; i++) {
+                const circle = document.createElement("div");
+                circle.classList.add("circle");
+                if (register[i] === 1) circle.classList.add("active");
+                circle.onclick = () => {
+                    register[i] = 1 - register[i];
+                    renderBits();
+                    // renderOutput();
+                };
+                circle.innerText = register[i];
+                container.appendChild(circle);
+            }
+        }
+
+        function renderOutput() {
+            const out = document.getElementById("register_output");
+            out.innerHTML = "";
+            register.forEach(bit => {
+                const b = document.createElement("div");
+                b.classList.add("circle");
+                b.innerText = bit;
+                if (bit === 1) b.classList.add("active");
+                out.appendChild(b);
+            });
+        }
+
+        function triggerClock() {
+            if (!enableWrite) return;
+            renderBits();
+            renderOutput();
+        }
+
+        function toggleEnable() {
+            enableWrite = !enableWrite;
+            const btn = document.getElementById("enable_write_btn");
+            btn.innerText = `Enable Write: ${enableWrite ? "ON" : "OFF"}`;
+            btn.style.backgroundColor = enableWrite ? "limegreen" : "gray";
+        }
+
+        function clearRegister() {
+            let register_temp = register;
+            register = Array(4).fill(0);
+            renderBits();
+            renderOutput();
+            register = register_temp;
+            renderBits();
+        }
+
+        // Initial render
+        renderBits();
+        renderOutput();
+
+        let counterValue = 0;
+        let counterInterval = null;
+
+        function renderCounter() {
+            const binStr = counterValue.toString(2).padStart(4, '0');
+            const out = document.getElementById("counter_output");
+            out.innerHTML = "";
+            for (let i = 0; i < 4; i++) {
+                const bit = parseInt(binStr[i]);
+                const b = document.createElement("div");
+                b.classList.add("circle");
+                b.innerText = bit;
+                if (bit === 1) b.classList.add("active");
+                out.appendChild(b);
+            }
+            const dec = document.getElementById("counter_decimal");
+            dec.innerText = `${counterValue}`;
+        }
+
+        function toggleCounter() {
+            if (counterInterval) {
+                clearInterval(counterInterval);
+                counterInterval = null;
+            } else {
+                counterInterval = setInterval(() => {
+                    counterValue = (counterValue + 1) % 16; // 4-bit counter
+                    renderCounter();
+                }, 500); // 2 Hz
+            }
+        }
+
+        function resetCounter() {
+            counterValue = 0;
+            renderCounter();
+        }
+
+        renderCounter();
+
+        let shifter = Array(8).fill(0);
+
+        function renderShifter() {
+            const out = document.getElementById("shifter_output");
+            const dec = document.getElementById("shifter_decimal");
+            out.innerHTML = "";
+
+            shifter.forEach(bit => {
+                const b = document.createElement("div");
+                b.classList.add("circle");
+                b.innerText = bit;
+                if (bit === 1) b.classList.add("active");
+                out.appendChild(b);
+            });
+
+            const value = parseInt(shifter.join(""), 2);
+            dec.innerText = `${value}`;
+        }
+
+        function loadShiftData() {
+            const input = document.getElementById("shift_input").value.trim();
+            if (!/^[01]{1,8}$/.test(input)) {
+                alert("Please enter a binary number up to 8 bits.");
+                return;
+            }
+            const padded = input.padStart(8, "0");
+            shifter = padded.split("").map(Number);
+            renderShifter();
+        }
+
+        function shiftLeft() {
+            shifter.shift();
+            shifter.push(0);
+            renderShifter();
+        }
+
+        function shiftRight() {
+            shifter.pop();
+            shifter.unshift(0);
+            renderShifter();
+        }
+
+        // Initial state
+        renderShifter();
+
+
         function initializeOutputs() {
             srLatch();
             srNandLatch();
@@ -480,6 +782,7 @@
             dLatch();
             dFlipFlopSim();
             dFlipFlopPosSim();
+            toggleCounter();
         }
     </script>
 
